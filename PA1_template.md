@@ -1,13 +1,6 @@
----
-title: "Analysis of Activity Monitoring Device"
-output: 
-  html_document: 
-    keep_md: yes
----
+# Analysis of Activity Monitoring Device
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ###Introduction
 
@@ -22,7 +15,8 @@ Lets analyse the data and try to answer the following questions:
 3. Are there differences in activity patterns between weekdays and weekends?
 
  Download the file and unzip
-```{r}
+
+```r
 # setwd("~/workspace/repdata_prj1")
 
 if(!file.exists("activity.csv"))
@@ -33,7 +27,8 @@ if(!file.exists("activity.csv"))
 }
 ```
  Read activity file contents
-```{r}
+
+```r
 actdata <- read.csv('activity.csv', stringsAsFactors=FALSE,header = TRUE, sep = ",",colClasses=c("numeric", "character", "numeric"))
 actdata$date <- as.Date(actdata$date, "%Y-%m-%d")
 #actdata$interval <- factor(actdata$interval)
@@ -41,31 +36,45 @@ actdata$date <- as.Date(actdata$date, "%Y-%m-%d")
 
 ## 1. What is mean total number of steps taken per day?
 a. Extract date and aggregated steps for each date in to daily_steps
-```{r}
+
+```r
 daily_steps <-  aggregate(steps ~ date, actdata, sum)
 # Add column names
 colnames(daily_steps) <- c("date","steps")
 ```
 
 b. Plot Histogram of Total steps and for each day
-```{r}
-hist(daily_steps$steps, breaks = 20, xlab = "Number of Steps", main= "Histogram of the total steps taken each day")
 
+```r
+hist(daily_steps$steps, breaks = 20, xlab = "Number of Steps", main= "Histogram of the total steps taken each day")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
 </br>d. Find Mean & Median
-```{r}
+
+```r
 #Mean
 mean(daily_steps$steps)
 ```
 
-```{r}
+```
+## [1] 10766.19
+```
+
+
+```r
 #Median
 mean(daily_steps$steps)
 ```
 
+```
+## [1] 10766.19
+```
+
 ## 2. What is the average daily activity pattern?
 a. Find Average steps across all days
-```{r}
+
+```r
 #Calculating the average
 steps_per_interval <- aggregate(actdata$steps, by=list(actdata$interval), FUN=mean, na.rm=TRUE)
 #Adding columns names
@@ -74,25 +83,46 @@ colnames(steps_per_interval) <- c("interval", "avg_steps")
 #ploting the average daily activity pattern 
 plot(steps_per_interval$interval, steps_per_interval$avg_steps, type="l", col="blue", lwd=2, xlab="Interval [minutes]", ylab="Average number of steps", main="Average Daily Activity Pattern)")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
 </br>b.Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
-```{r}
+
+```r
 # Maximum number of average steps 
 max(steps_per_interval$avg_steps)
 ```
-```{r}
+
+```
+## [1] 206.1698
+```
+
+```r
 #The 5-minute interval that has the maximum number of steps
 steps_per_interval[which.max(steps_per_interval$avg_steps),]$interval
+```
+
+```
+## [1] 835
+```
+
+```r
 #rm(steps_per_interval)
 ```
 The Interval 835 got the maximum steps 206.16
 
 ##3.Imputing missing values
 a. Total missing values in the dataset
-```{r}
+
+```r
 sum(is.na(actdata$steps))
 ```
+
+```
+## [1] 2304
+```
 b. Fill missing values with 0
-```{r}
+
+```r
 NA_index <- which(is.na(as.character(actdata$steps)))
 actdata_nona <- actdata
 
@@ -102,7 +132,8 @@ actdata_nona$interval <- factor(actdata_nona$interval)
 ```
 
 c. Histogram of the total number of steps taken each day
-```{r}
+
+```r
 #Extract steps taken for each day
 steps_each_day <- aggregate(steps ~ date, data = actdata_nona, sum)
 #Adding column names to the created data frame
@@ -111,20 +142,33 @@ colnames(steps_each_day) <- c("date", "steps")
 #Making the histogram
 hist(steps_each_day$steps, breaks = 20, col = "red", xlab = "Number of Steps", main= "Histogram of the total number of steps taken each day")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
 </br>d. Calculate and report the mean and median total number of steps taken per day.
-```{r}
+
+```r
 #Mean
 mean(steps_each_day$steps)
 ```
 
-```{r}
+```
+## [1] 10766.19
+```
+
+
+```r
 #Median
 median(steps_each_day$steps)
 ```
 
+```
+## [1] 10766.19
+```
+
 ##4. Are there differences in activity patterns between weekdays and weekends?
 Classify data into week day and weekend
-```{r}
+
+```r
 actdata_nona$day <- as.factor(weekdays(actdata_nona$date))
 #Creating a logical variable "is_weekday" (weekday=TRUE, weekend = FALE) :
 #actdata_nona$is_weekday <- ifelse(!(as.factor(weekdays(actdata_nona$date)) %in% c("Saturday","Sunday")), TRUE, FALSE) 
@@ -149,8 +193,11 @@ week_data$day <- as.factor(week_data$day)
 library(lattice)
 xyplot(average_steps ~  interval | day, data = week_data, layout = c(1,2), type ="l", ylab="Number of Steps")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 </br>It is observed from the plot that activity on the weekends tends to be more spread out over the day compared to the weekdays.
-```{r}
+
+```r
 # Clear the workspace
  rm(list=ls())
 ```
